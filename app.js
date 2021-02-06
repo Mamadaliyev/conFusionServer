@@ -6,6 +6,8 @@ var logger = require("morgan");
 const mongoose = require("mongoose");
 
 const Dishes = require("./models/dishes");
+const Promotions = require("./models/promotions");
+const Leaders = require("./models/leaders");
 
 const url = "mongodb://localhost:27017/conFusion";
 
