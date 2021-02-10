@@ -5,6 +5,8 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const session = require("express-session");
+const FileStore = require("session-file-store")(session);
 
 const Dishes = require("./models/dishes");
 const Promotions = require("./models/promotions");
@@ -24,9 +26,9 @@ connect.then(
 );
 
 function auth(req, res, next) {
-  console.log(req.signedCookies);
+  console.log(req.session);
 
-  if (!req.signedCookies.user) {
+  if (!req.session.user) {
     var authHeader = req.headers.authorization;
     if (!authHeader) {
       var err = new Error("You are not authenticated");
@@ -45,7 +47,7 @@ function auth(req, res, next) {
     var pass = auth[1];
 
     if (user == "admin" && pass == "password") {
-      res.cookie("user", "admin", { signed: true });
+      req.session.user = "admin";
       next(); //authorized
     } else {
       var err = new Error("You are not authenticated");
@@ -54,7 +56,7 @@ function auth(req, res, next) {
       next(err);
     }
   } else {
-    if (req.signedCookies.user === "admin") {
+    if (req.session.user === "admin") {
       next();
     } else {
       var err = new Error("You are not authenticated");
@@ -74,7 +76,17 @@ var leaderRouter = require("./routes/leaderRouter");
 var app = express();
 
 // view engine setup
-app.use(cookieParser("123456-7890"));
+// app.use(cookieParser("123456-7890"));
+
+app.use(
+  session({
+    name: "session-id",
+    secret: "123456-7890",
+    saveUninitialized: false,
+    resave: false,
+    store: new FileStore(),
+  })
+);
 app.use(auth);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
