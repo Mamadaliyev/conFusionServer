@@ -9,12 +9,13 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const passport = require("passport");
 const authenticate = require("./authenticate");
+const config = require("./config");
 
 const Dishes = require("./models/dishes");
 const Promotions = require("./models/promotions");
 const Leaders = require("./models/leaders");
 
-const url = "mongodb://localhost:27017/conFusion";
+const url = config.mongoUrl;
 
 const connect = mongoose.connect(url);
 var app = express();
@@ -27,15 +28,6 @@ connect.then(
     console.log(err);
   }
 );
-app.use(
-  session({
-    name: "session-id",
-    secret: "123456-7890",
-    saveUninitialized: false,
-    resave: false,
-    store: new FileStore(),
-  })
-);
 app.use(cookieParser());
 
 app.use(passport.initialize());
@@ -47,17 +39,6 @@ var usersRouter = require("./routes/users");
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 
-function auth(req, res, next) {
-  if (!req.user) {
-    var err = new Error("You are not authenticated");
-    res.setHeader("WWW-Authenticate", "Basic");
-    err.status = 403;
-    return next(err);
-  } else {
-    next();
-  }
-}
-
 var dishRouter = require("./routes/dishRouter");
 var promoRouter = require("./routes/promoRouter");
 var leaderRouter = require("./routes/leaderRouter");
@@ -65,7 +46,6 @@ var leaderRouter = require("./routes/leaderRouter");
 // view engine setup
 // app.use(cookieParser("123456-7890"));
 
-app.use(auth);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
