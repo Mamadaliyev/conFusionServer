@@ -28,6 +28,18 @@ connect.then(
     console.log(err);
   }
 );
+
+app.all("*", (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+    res.redirect(
+      307,
+      "https://" + req.hostname + ":" + app.get("secPort") + req.url
+    );
+  }
+});
+
 app.use(cookieParser());
 
 app.use(passport.initialize());
