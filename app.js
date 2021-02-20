@@ -4,7 +4,6 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const passport = require("passport");
@@ -62,7 +61,6 @@ var uploadRouter = require("./routes/uploadRouter");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
